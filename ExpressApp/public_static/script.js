@@ -16,9 +16,14 @@ $(function () {
     $('#addtodo').click(function () {
         var newtodo = $('#newtodo').val();
 
-        $.get('/addtodo?todo=' + newtodo, function (data) {
-            refreshTodos(data)
-        })
+        // $.get('/addtodo', {todo: newtodo}, function (data) {
+        //     refreshTodos(data)
+        // })
+        $.post('/addtodo',
+            {todo: newtodo},
+            function (data) {
+                refreshTodos(data)
+            })
 
     })
 
