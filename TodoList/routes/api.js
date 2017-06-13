@@ -1,25 +1,23 @@
 /**
  * Created by championswimmer on 13/06/17.
  */
-
 const route = require('express').Router();
 const data = require('../data');
 
 route.get('/', (req, res) => {
-    data.getTodos(function (err, data) {
 
-        if (err) { res.send(err) }
-        res.send(data)
-
-
+    data.getTodos().then((results) => {
+        res.send(results)
     })
+
 });
 
 route.post('/new', (req, res) => {
-    data.addTodo(req.body.newtodo, function (err) {
-        if (err) { res.send(err) }
-        res.redirect('/api/todos')
 
+    data.addTodo(req.body.newtodo).then(()=> {
+        res.redirect('/api/todos')
+    }).catch((err) => {
+        res.send(err)
     })
 });
 

@@ -1,0 +1,24 @@
+
+mysql -u root -p
+
+> CREATE DATABASE yourdbname;
+
+> CREATE USER username IDENTIFIED BY 'password';
+
+> USE yourdbname;
+
+> GRANT ALL PRIVILEGES ON yourdbname TO username@'%';
+> FLUSH PRIVILEGES;
+
+> exit
+
+mysql -u username -p
+
+> SHOW DATABASES;
+
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| yourdbname         |
++--------------------+

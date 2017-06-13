@@ -6,21 +6,19 @@ const fs = require('fs');
 const data = require('../data');
 
 route.get('/', (req, res) => {
-    data.getTodos(function (err, data) {
 
-        if (err) { res.send(err) }
-        res.render("todos", {todos: data})
-
-
+    data.getTodos().then((results) => {
+        res.render("todos", {todos: results})
     })
 
 });
 
 route.post('/add', (req, res) => {
-    data.addTodo(req.body.newtodo, function (err) {
-        if (err) { res.send(err) }
-        res.redirect('/todos')
 
+    data.addTodo(req.body.newtodo).then(()=> {
+        res.redirect('/todos')
+    }).catch((err) => {
+        res.send(err)
     })
 });
 
