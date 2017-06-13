@@ -6,7 +6,7 @@
 </head>
 <body>
 
-<form id="myform" method="post" action="/add">
+<form id="myform" method="post" action="/todos/add">
     <input type="text" id="newtodo" name="newtodo">
     <input type="submit" id="addtodo">
 </form>
@@ -14,7 +14,7 @@
 <ul id="todolist">
 
     {{#each todos}}
-        <li>{{task}}</li>
+        <li>{{this}}</li>
     {{/each}}
 </ul>
 

@@ -12,13 +12,13 @@ $(function () {
         $('#todolist').html(todolist);
     }
 
-    $.get('/gettodos', function (data) {
+    $.get('/api/todos', function (data) {
         refreshTodos(data)
     });
 
     $('#addtodo').click(function () {
 
-        $.post('/addtodo', {
+        $.post('/api/todos/new', {
             newtodo: $('#newtodo').val()
         }, function (data) {
             refreshTodos(data)
