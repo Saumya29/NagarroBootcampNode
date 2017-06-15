@@ -15,6 +15,7 @@ route.get('/', (req, res) => {
         })
 });
 
+
 route.get('/:id', (req, res) => {
     Event.findByPrimary(req.params.id)
         .then((event) => {
