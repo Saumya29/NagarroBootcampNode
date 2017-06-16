@@ -13,9 +13,17 @@ function ensureLoggedIn(redirPath) {
         }
 
     }
+}
 
+function ensureAdmin() {
+    return function (req, res, next) {
+        req.userIsAdmin = !req.user.roleId != 4;
+        next();
+
+    }
 }
 
 module.exports = {
-    eli: ensureLoggedIn
+    eli: ensureLoggedIn,
+    eia: ensureAdmin
 };

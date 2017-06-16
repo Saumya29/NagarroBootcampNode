@@ -8,5 +8,4 @@ route.use(passport.authenticate('bearer'));
 
 route.use('/events', require('./events'));
 
-
 module.exports = route;
