@@ -8,6 +8,8 @@ const User = require('../../db/models').User;
 const EventInvitee = require('../../db/models').EventInvitee;
 const Invitee = require('../../db/models').Invitee;
 
+const im = require('../../utils/inviteemailer');
+
 route.get('/', (req, res) => {
     console.log(req.user);
     Event.findAll({
@@ -45,25 +47,7 @@ route.get('/:id', (req, res) => {
         })
 });
 
-route.get('/:id/invitees', (req, res) => {
-    EventInvitee.findAll({
-        where: {
-            eventId: req.params.id,
-            '$event.hostId$': req.user.id,
-        },
-        include: [Invitee, {
-            model: Event,
-            as: 'event',
-            attributes: ['hostId']
-        }]
-    }).then((invitees) => {
-        if (invitees) {
-            res.status(200).send(invitees)
-        } else {
-            res.status(500).send('No invitees found for this event')
-        }
-    })
-});
+
 
 route.post('/new', (req, res) => {
     //Add server-side validations if required here
@@ -88,7 +72,9 @@ route.post('/new', (req, res) => {
             invitees = invitees.map((i) => {
                 return {email: i.trim()}
             });
-            Invitee.bulkCreate(invitees)
+            Invitee.bulkCreate(invitees, {
+                ignoreDuplicates: true
+            })
                 .then((invitees) => {
                     let eventInvitee = invitees.map((i) => {
                         return {
@@ -97,9 +83,16 @@ route.post('/new', (req, res) => {
                         }
                     });
 
-                    EventInvitee.bulkCreate(eventInvitee)
+                    EventInvitee.bulkCreate(eventInvitee, {
+                        ignoreDuplicates: true
+                    })
                         .then((eiArr) => {
                             res.status(200).send(event)
+                            let emailArr = invitees.map((i) => i.email);
+                            im.sendInvite(emailArr, function () {
+                                console.log('Invites are sent');
+                            });
+
                         })
                 })
         } else {
@@ -149,6 +142,74 @@ route.delete('/:id', /*authUtils.eia(),*/ (req, res) => {
             res.status(200).send('Event successfully deleted')
         }
 
+    })
+});
+
+// ============ INVITEE ENDPOINTS ==============
+route.get('/:id/invitees', (req, res) => {
+    EventInvitee.findAll({
+        attributes: ['id'],
+        where: {
+            eventId: req.params.id,
+            '$event.hostId$': req.user.id,
+        },
+        include: [{
+            model: Invitee,
+            as: 'invitee',
+            attributes: ['id', 'email']
+        }, {
+            model: Event,
+            as: 'event',
+            attributes: ['id', 'hostId']
+        }]
+    }).then((invitees) => {
+        if (invitees) {
+            res.status(200).send(invitees)
+        } else {
+            res.status(500).send('No invitees found for this event')
+        }
+    })
+});
+
+route.put('/:id/invitees', (req, res) => {
+    let invitees = req.body.invitees.split(';');
+    invitees = invitees.map((i) => {
+        return {email: i.trim()}
+    });
+    Invitee.bulkCreate(invitees, {
+        ignoreDuplicates: true
+    })
+        .then((invitees) => {
+            let eventInvitee = invitees.map((i) => {
+                return {
+                    eventId: req.params.id,
+                    inviteeId: i.id
+                }
+            });
+
+            EventInvitee.bulkCreate(eventInvitee, {
+                ignoreDuplicates: true
+            })
+                .then((eiArr) => {
+                    res.status(200).send({
+                        newInvitees: eiArr
+                    })
+                })
+        })
+});
+
+route.delete('/:id/invitees/:invId', (req, res) => {
+    EventInvitee.destroy({
+        where: {
+            eventId: req.params.id,
+            inviteeId: req.params.invId
+        }
+    }).then((result) => {
+        if (result == 0) {
+            return res.status(500).send({error: 'Invitee or Event did not exist'})
+        } else {
+            return res.status(200).send({success: true})
+        }
     })
 });
 

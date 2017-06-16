@@ -43,9 +43,25 @@ route.post('/token', passport.authenticate('local'), (req, res) => {
         token: uid2(20),
         userId: req.user.id
     }).then((authToken) => {
-        return res.send(authToken.token)
+        return res.send({
+            token: authToken.token
+        })
     })
 
 });
+
+// Implement this if possible (To rsvp users)
+route.get('/rsvp/:token', (req, res) => {
+    EventInvitee.update( {
+        rsvp: req.query.rsvp
+    }, {
+        where: {
+            token: req.params.token
+        }
+    })
+});
+
+'http://localhost:3456/rsvp/kahsfiasy?rsvp=true'
+'http://localhost:3456/rsvp/kahsfiasy?rsvp=false'
 
 module.exports = route;

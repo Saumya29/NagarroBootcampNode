@@ -63,7 +63,9 @@ const EventInvitee = db.define('eventinvitee', {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true
-    }
+    },
+    rsvp: Sequelize.BOOLEAN,
+    token: Sequelize.STRING
 });
 
 const AuthToken = db.define('authtoken', {
